@@ -16,7 +16,7 @@ export function containsBankDataLeak(responseText, sessionPhase) {
     return BANK_DATA_PATTERNS.some(pattern => responseText.includes(pattern));
 }
 
-// Detect invented phone-like numbers (e.g. a hallucinated Nequi) that are NOT real known values
+// Detect invented phone-like numbers (e.g. a hallucinated number) that are NOT real known values
 export function containsHallucinatedPhone(responseText) {
     const matches = responseText.match(COL_PHONE_RE) || [];
     return matches.some(m => !BANK_DATA_PATTERNS.includes(m));

@@ -139,7 +139,7 @@ Everything below must be green before the first real patient receives a message.
 - [x] **Double-message hallucination (fixed):** `src/prompt.js` adds `## TURNO ÚNICO — REGLA ABSOLUTA`
   preventing the AI from simulating a patient reply within the same message turn.
 - [x] **Terminology fix:** All uses of "blanqueamiento" in `src/prompt.js` replaced with
-  "aclaramiento dental" (the clinically precise term used by Dra. Yuri).
+  "aclaramiento dental" (the clinically precise term used by Dra. [Doctor Name]).
 - [x] **Dashboard live polling:** `public/dashboard.html` polls every 8 seconds, updates the
   conversation list in place, shows a `(N)` unread badge in the browser tab, and pauses on tab hide.
 - [x] **Conversation reset endpoint:** `POST /debug/reset/:phone` (auth-protected) resets all
@@ -259,7 +259,7 @@ Everything below must be green before the first real patient receives a message.
   processing only. Informed consent for clinical image use is signed at the valoración, not over WhatsApp.
   **Legal constraint (Colombia):** Any visual assessment of dental condition — even framed as
   "warm and non-diagnostic" — may constitute unlicensed practice of dentistry under Colombian law.
-  Before implementing, validate response copy with Dra. Yuri and legal counsel. Valeria's reply
+  Before implementing, validate response copy with Dra. [Doctor Name] and legal counsel. Valeria's reply
   must be strictly motivational ("Nos encantaría conocer tu caso") and must never describe,
   evaluate, or comment on the patient's dental condition.
 - **Tone Calibration:** Valeria's responses are occasionally over-the-top effusive.
