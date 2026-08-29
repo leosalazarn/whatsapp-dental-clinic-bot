@@ -39,7 +39,7 @@ import { processMessage, handleConversionFlow } from '../src/flow.js';
 import { callValeria } from '../src/ai.js';
 import { sendMessage, sendReceptionistAlert, notifyReceptionist } from '../src/whatsapp.js';
 import { updateSession, getSession } from '../src/session.js';
-import { NEQUI_NUMBER, BANCOLOMBIA_ACCOUNT, MSG_CLOSING, MSG_CLOSING_IN_PERSON, MSG_PAYMENT, MSG_RECEPTIONIST_COMPROBANTE, MSG_RECEPTIONIST_IN_PERSON } from '../src/config.js';
+import { MOBILE_WALLET_NUMBER, BANK_ACCOUNT_1, MSG_CLOSING, MSG_CLOSING_IN_PERSON, MSG_PAYMENT, MSG_RECEPTIONIST_COMPROBANTE, MSG_RECEPTIONIST_IN_PERSON } from '../src/config.js';
 
 const phone = (n) => `+5734000${n}`;
 
@@ -57,8 +57,8 @@ describe('handleConversionFlow — PAYMENT phase (deterministic)', () => {
         const result = await handleConversionFlow(p, await getSession(p));
 
         expect(typeof result).toBe('string');
-        expect(result).toContain(NEQUI_NUMBER);
-        expect(result).toContain(BANCOLOMBIA_ACCOUNT);
+        expect(result).toContain(MOBILE_WALLET_NUMBER);
+        expect(result).toContain(BANK_ACCOUNT_1);
         expect(callValeria).not.toHaveBeenCalled();
     });
 
@@ -132,7 +132,7 @@ describe('handleConversionFlow — PAYMENT phase signal tokens', () => {
         const result = await handleConversionFlow(p, await getSession(p), 'reenvíame los datos');
 
         expect(result).toBe(MSG_PAYMENT());
-        expect(result).toContain(NEQUI_NUMBER);
+        expect(result).toContain(MOBILE_WALLET_NUMBER);
         expect((await getSession(p)).phase).toBe('PAYMENT');
     });
 
@@ -153,7 +153,7 @@ describe('handleConversionFlow — PAYMENT phase signal tokens', () => {
         const result = await handleConversionFlow(p, await getSession(p), 'ya pagué');
 
         expect(result).not.toBe(MSG_CLOSING_IN_PERSON('Ana'));
-        expect(result).toContain(NEQUI_NUMBER);
+        expect(result).toContain(MOBILE_WALLET_NUMBER);
         expect((await getSession(p)).payment_in_person).not.toBe(true);
     });
 });
@@ -197,7 +197,7 @@ describe('processMessage — CLOSING phase signal token', () => {
         expect(sendMessage).toHaveBeenCalled();
         const sent = vi.mocked(sendMessage).mock.calls[0][1];
         expect(sent).toBe(MSG_PAYMENT());
-        expect(sent).toContain(NEQUI_NUMBER);
+        expect(sent).toContain(MOBILE_WALLET_NUMBER);
         expect((await getSession(p)).phase).toBe('CLOSING');
     });
 });
@@ -214,7 +214,7 @@ describe('processMessage — PAYMENT phase', () => {
         expect(callValeria).not.toHaveBeenCalled();
         expect(sendMessage).toHaveBeenCalledOnce();
         const sent = vi.mocked(sendMessage).mock.calls[0][1];
-        expect(sent).toContain(NEQUI_NUMBER);
-        expect(sent).toContain(BANCOLOMBIA_ACCOUNT);
+        expect(sent).toContain(MOBILE_WALLET_NUMBER);
+        expect(sent).toContain(BANK_ACCOUNT_1);
     });
 });

@@ -205,8 +205,8 @@ Everything below must be green before the first real patient receives a message.
    `src/config.js`. Status: in progress.
 - [x] **[P1] Dead code cleanup:** (a) Removed duplicate `MSG_REENGAGEMENT` export in `src/config.js`
    (identical to and unused vs `MSG_REENGAGEMENT_HOOK`). (b) Removed 6 dead banking imports
-   (`NEQUI_NUMBER`, `BANCOLOMBIA_ACCOUNT`, `DAVIVIENDA_ACCOUNT`, `BANK_HOLDER_NAME`,
-   `BANK_HOLDER_CC`, `TREATMENT_PRICES`) from `src/prompt.js` after the payment-determinism
+(`MOBILE_WALLET_NUMBER`, `BANK_ACCOUNT_1`, `BANK_ACCOUNT_2`, `BANK_HOLDER_NAME`,
+`BANK_HOLDER_ID`, `TREATMENT_PRICES`) from `src/prompt.js` after the payment-determinism
    refactor — reduces AI context exposure. `guardrails/output.js` still imports the bank-value set
    for leak detection, so those `config.js` exports were left intact.
 - [x] **[P1] `startReengagementPoller()` error handling:** Added `.catch(err => log.error('reengagement poller failed to start', err))` at the `startReengagementPoller()` call site in `server.js`. Startup failures now surface in logs instead of being silently swallowed. (commit `c8e58b4`)

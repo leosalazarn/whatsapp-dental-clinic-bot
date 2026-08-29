@@ -1,11 +1,11 @@
-import { BANCOLOMBIA_ACCOUNT, NEQUI_NUMBER, DAVIVIENDA_ACCOUNT, BANK_HOLDER_CC } from '../config.js';
+import { BANK_ACCOUNT_1, MOBILE_WALLET_NUMBER, BANK_ACCOUNT_2, BANK_HOLDER_ID } from '../config.js';
 import log from '../utils/logger.js';
 
 const BANK_DATA_PATTERNS = [
-    BANCOLOMBIA_ACCOUNT,
-    NEQUI_NUMBER,
-    DAVIVIENDA_ACCOUNT,
-    BANK_HOLDER_CC,
+    BANK_ACCOUNT_1,
+    MOBILE_WALLET_NUMBER,
+    BANK_ACCOUNT_2,
+    BANK_HOLDER_ID,
 ].filter(Boolean);
 
 // Colombian mobile numbers are 10 digits starting with 3
