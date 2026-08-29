@@ -1,0 +1,35 @@
+{
+  "name": "valeria-dental-bot",
+  "version": "1.2.0",
+  "description": "Asesora IA 24/7 para la clínica de la Dra. [Doctor Name] — Perfeccionamiento dental #SmileWithLove en [City] · WhatsApp Business + Claude",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:local": "node test-local.js",
+    "test:minimal": "node test-minimal.js",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.120.0",
+    "@supabase/supabase-js": "^2.112.3",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.6.2",
+    "express-session": "^1.19.0",
+    "lusca": "^1.7.0",
+    "node-fetch": "^3.3.2"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "author": "[author] & Dra. [Doctor Name]",
+  "license": "LICENSED",
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "vitest": "^4.1.11"
+  }
+}

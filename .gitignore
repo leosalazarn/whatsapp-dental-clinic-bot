@@ -1,0 +1,24 @@
+# ── Secrets ─────────────────────────
+.env
+
+# ── Node.js ──────────────────────────────────────────────────
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# ── IntelliJ IDEA ────────────────────────────────────────────
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# ── Sistema operativo ────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── Logs ─────────────────────────────────────────────────────
+logs/
+*.log

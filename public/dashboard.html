@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<!-- CSP: unsafe-inline required for single-file architecture (inline scripts/styles).
+     Acceptable for internal-only dashboard. If extracted to separate files, remove unsafe-inline. -->
+<meta http-equiv="Content-Security-Policy"
+      content="default-src 'self';
+               script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cdn.jsdelivr.net;
+               style-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com;
+               connect-src 'self';
+               img-src 'self' data:;
+               font-src 'self';
+               frame-ancestors 'none';">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Valeria AI — Panel de Seguimiento de Leads</title>
+<script src="https://cdn.tailwindcss.com/3.4.1"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans">
+
+<div id="app" class="max-w-7xl mx-auto p-4 md:p-6">
+
+  <!-- Header -->
+  <header class="mb-6 flex items-start gap-4">
+    <img src="/assets/logo.png" alt="Logo Dra. [Doctor Name]" class="w-24 md:w-32 h-auto rounded-lg flex-shrink-0">
+    <div>
+      <h1 class="text-2xl md:text-3xl font-bold text-teal-700" data-i18n="clinic">Dra. [Doctor Name] — Odontología Estética</h1>
+      <p class="text-lg text-gray-500 mt-1" data-i18n="subtitle">Panel de Seguimiento de Leads — Valeria AI</p>
+      <span id="liveIndicator" class="hidden inline-flex items-center gap-1 text-xs text-green-600 mt-1">
+        <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span> Live
+      </span>
+    </div>
+  </header>
+
+  <!-- Connection Bar -->
+  <div class="bg-white rounded-lg shadow p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-3">
+    <div class="flex items-center gap-2 flex-1">
+      <span id="statusDot" class="w-3 h-3 rounded-full bg-red-500 inline-block"></span>
+      <span id="statusText" class="text-sm font-medium text-red-600">Desconectado</span>
+    </div>
+    <div class="flex items-center gap-2 w-full sm:w-auto">
+      <input id="apiKeyInput" type="password" data-i18n-placeholder="apiKeyPlaceholder" placeholder="Ingresa la clave que te proporcionó el administrador"
+             class="border rounded px-3 py-1.5 text-sm flex-1 sm:w-64 focus:outline-none focus:ring-2 focus:ring-teal-400">
+      <select id="langSwitcher" class="border rounded px-2 py-1.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-teal-400">
+        <option value="es">ES</option>
+        <option value="en">EN</option>
+      </select>
+      <button id="connectBtn" data-i18n="connect" class="bg-teal-600 text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-teal-700 transition">
+        Conectar
+      </button>
+    </div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div id="kpiRow" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-white rounded-lg shadow p-4 text-center"><div class="text-2xl font-bold text-teal-600" id="kpiTotal">—</div><div class="text-xs text-gray-500 mt-1" data-i18n="totalLeads">Leads Totales</div></div>
+    <div class="bg-white rounded-lg shadow p-4 text-center"><div class="text-2xl font-bold text-green-600" id="kpiScheduled">—</div><div class="text-xs text-gray-500 mt-1" data-i18n="scheduled">Citas Agendadas</div></div>
+    <div class="bg-white rounded-lg shadow p-4 text-center"><div class="text-2xl font-bold text-blue-600" id="kpiTreatment">—</div><div class="text-xs text-gray-500 mt-1" data-i18n="inTreatment">En Tratamiento</div></div>
+    <div class="bg-white rounded-lg shadow p-4 text-center"><div class="text-2xl font-bold text-purple-600" id="kpiConversion">—</div><div class="text-xs text-gray-500 mt-1" data-i18n="conversionRate">Tasa de Conversión</div></div>
+  </div>
+
+  <!-- Funnel + Side Cards Row -->
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Funnel Chart -->
+    <div class="lg:col-span-2 bg-white rounded-lg shadow p-4">
+      <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-3" data-i18n="funnel">Embudo de Conversión</h2>
+      <canvas id="funnelChart" height="200"></canvas>
+    </div>
+    <!-- Side Cards -->
+    <div class="space-y-4">
+      <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2" data-i18n="responseTime">Tiempos de Respuesta</h2>
+        <div id="responseTimeContent" class="text-sm text-gray-600">
+          <p><span class="font-medium" data-i18n="avgResponse">Tiempo de Respuesta Promedio:</span> <span id="avgResponseVal">—</span>s</p>
+          <p class="mt-1"><span class="font-medium" data-i18n="avgToPayment">Tiempo hasta Pago Promedio:</span> <span id="avgPaymentVal">—</span> min</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow p-4">
+        <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide mb-2" data-i18n="reengagement">Reengagement</h2>
+        <div id="reengagementContent" class="text-sm text-gray-600">
+          <p><span class="font-medium" data-i18n="reengSent">Seguimientos Enviados:</span> <span id="reengSentVal">—</span></p>
+          <p class="mt-1"><span class="font-medium" data-i18n="reengRecovered">Recuperados:</span> <span id="reengRecoveredVal">—</span></p>
+          <p class="mt-1"><span class="font-medium" data-i18n="reengRate">Tasa de Recuperación:</span> <span id="reengRateVal">—</span></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Leads Table -->
+  <div class="bg-white rounded-lg shadow p-4 mb-6">
+    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
+      <h2 class="text-sm font-semibold text-gray-600 uppercase tracking-wide" data-i18n="leads">Lista de Leads</h2>
+      <div class="flex items-center gap-3">
+        <label class="flex items-center gap-1.5 text-xs text-gray-500 cursor-pointer" data-i18n="autoRefresh">
+          <input type="checkbox" id="autoRefreshToggle" class="rounded">
+          Actualización automática (30s)
+        </label>
+        <button id="exportCsvBtn" data-i18n="exportCsv" class="bg-gray-200 text-gray-700 px-3 py-1 rounded text-xs font-medium hover:bg-gray-300 transition">
+          Exportar CSV
+        </button>
+      </div>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="border-b text-left text-gray-500 text-xs uppercase tracking-wide">
+            <th class="pb-2 pr-2" data-i18n="phone">Teléfono</th>
+            <th class="pb-2 pr-2" data-i18n="name">Nombre</th>
+            <th class="pb-2 pr-2" data-i18n="goal">Objetivo</th>
+            <th class="pb-2 pr-2" data-i18n="phase">Fase</th>
+            <th class="pb-2 pr-2" data-i18n="status">Estado</th>
+            <th class="pb-2 pr-2" data-i18n="source">Fuente</th>
+            <th class="pb-2 pr-2" data-i18n="lastSeen">Última interacción</th>
+          </tr>
+        </thead>
+        <tbody id="leadsBody">
+          <tr><td colspan="7" class="py-8 text-center text-gray-400">Sin datos aún</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ===== Locales =====
+const locales = {
+  es: {
+    title: 'Panel de Seguimiento de Leads',
+    clinic: 'Dra. [Doctor Name] — Odontología Estética',
+    subtitle: 'Panel de Seguimiento de Leads — Valeria AI',
+    connect: 'Conectar',
+    connected: 'Conectado',
+    disconnected: 'Desconectado',
+    totalLeads: 'Leads Totales',
+    scheduled: 'Citas Agendadas',
+    inTreatment: 'En Tratamiento',
+    conversionRate: 'Tasa de Conversión',
+    avgResponse: 'Tiempo de Respuesta Promedio:',
+    avgToPayment: 'Tiempo hasta Pago Promedio:',
+    reengSent: 'Seguimientos Enviados:',
+    reengRecovered: 'Recuperados:',
+    reengRate: 'Tasa de Recuperación:',
+    exportCsv: 'Exportar CSV',
+    autoRefresh: 'Actualización automática (30s)',
+    phone: 'Teléfono',
+    name: 'Nombre',
+    goal: 'Objetivo',
+    phase: 'Fase',
+    status: 'Estado',
+    source: 'Fuente',
+    lastSeen: 'Última interacción',
+    noData: 'Sin datos aún',
+    apiKeyPlaceholder: 'Ingresa la clave que te proporcionó el administrador',
+    funnel: 'Embudo de Conversión',
+    reengagement: 'Reengagement',
+    responseTime: 'Tiempos de Respuesta',
+    leads: 'Lista de Leads',
+    fullName: 'Nombre completo:',
+    email: 'Email:',
+    reason: 'Motivo:',
+    invalidKey: 'Clave de acceso inválida',
+  },
+  en: {
+    title: 'Lead Dashboard',
+    clinic: 'Dra. [Doctor Name] — Aesthetic Dentistry',
+    subtitle: 'Lead Dashboard — Valeria AI',
+    connect: 'Connect',
+    connected: 'Connected',
+    disconnected: 'Disconnected',
+    totalLeads: 'Total Leads',
+    scheduled: 'Scheduled',
+    inTreatment: 'In Treatment',
+    conversionRate: 'Conversion Rate',
+    avgResponse: 'Avg Response Time:',
+    avgToPayment: 'Avg Time to Payment:',
+    reengSent: 'Reengagements Sent:',
+    reengRecovered: 'Recovered:',
+    reengRate: 'Recovery Rate:',
+    exportCsv: 'Export CSV',
+    autoRefresh: 'Auto-refresh (30s)',
+    phone: 'Phone',
+    name: 'Name',
+    goal: 'Goal',
+    phase: 'Phase',
+    status: 'Status',
+    source: 'Source',
+    lastSeen: 'Last Seen',
+    noData: 'No data yet',
+    apiKeyPlaceholder: 'Enter the access key provided by your administrator',
+    funnel: 'Conversion Funnel',
+    reengagement: 'Reengagement',
+    responseTime: 'Response Times',
+    leads: 'Leads List',
+    fullName: 'Full name:',
+    email: 'Email:',
+    reason: 'Reason:',
+    invalidKey: 'Invalid access key',
+  },
+};
+
+const phaseLabels = {
+  es: { START: 'Inicio', EXTRACTION: 'Extracción', HOOK: 'Propuesta', DATA_CAPTURE: 'Captura de Datos', PAYMENT: 'Pago', CLOSING: 'Cierre' },
+  en: { START: 'Start', EXTRACTION: 'Extraction', HOOK: 'Hook', DATA_CAPTURE: 'Data Capture', PAYMENT: 'Payment', CLOSING: 'Closing' },
+};
+
+const PHASE_COLORS = {
+  EXTRACTION: 'bg-blue-100 text-blue-700',
+  HOOK: 'bg-yellow-100 text-yellow-700',
+  DATA_CAPTURE: 'bg-yellow-100 text-yellow-700',
+  PAYMENT: 'bg-green-100 text-green-700',
+  CLOSING: 'bg-green-100 text-green-700',
+};
+
+let currentLocale = localStorage.getItem('valeria_locale') || 'es';
+function t(key) { return locales[currentLocale][key] || key; }
+
+let apiKey = '';
+let csrfToken = '';
+let autoRefreshInterval = null;
+let funnelChartInstance = null;
+
+// ── Live polling (8s) + unread badge ──
+let liveInterval = null;
+let pollingEnabled = false;          // true while authenticated
+let lastFocusTs = Date.now();       // timestamp of last tab focus
+let baseTitle = 'Valeria AI — Panel de Seguimiento de Leads';
+
+// ===== DOM refs =====
+const $ = (id) => document.getElementById(id);
+const statusDot = $('statusDot');
+const statusText = $('statusText');
+const apiKeyInput = $('apiKeyInput');
+const connectBtn = $('connectBtn');
+
+// ===== Apply locale =====
+function applyLocale() {
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const key = el.getAttribute('data-i18n');
+    el.textContent = t(key);
+  });
+  document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+    const key = el.getAttribute('data-i18n-placeholder');
+    el.placeholder = t(key);
+  });
+  document.documentElement.lang = currentLocale;
+  baseTitle = 'Valeria AI \u2014 ' + t('title');
+  document.title = baseTitle;
+  $('langSwitcher').value = currentLocale;
+}
+
+// ===== Connection =====
+function setConnected(connected) {
+  if (connected) {
+    statusDot.className = 'w-3 h-3 rounded-full bg-green-500 inline-block';
+    statusText.className = 'text-sm font-medium text-green-600';
+    statusText.textContent = t('connected');
+    pollingEnabled = true;
+    startLivePolling();
+  } else {
+    statusDot.className = 'w-3 h-3 rounded-full bg-red-500 inline-block';
+    statusText.className = 'text-sm font-medium text-red-600';
+    statusText.textContent = t('disconnected');
+    pollingEnabled = false;
+    stopLivePolling();
+  }
+}
+
+// ===== Live polling =====
+function showLiveIndicator(visible) {
+  const el = $('liveIndicator');
+  if (el) el.classList.toggle('hidden', !visible);
+}
+
+function startLivePolling() {
+  if (liveInterval || !pollingEnabled || document.visibilityState !== 'visible') return;
+  showLiveIndicator(true);
+  liveInterval = setInterval(pollLive, 8000);
+}
+
+function stopLivePolling() {
+  if (liveInterval) clearInterval(liveInterval);
+  liveInterval = null;
+  showLiveIndicator(false);
+  document.title = baseTitle;
+}
+
+async function pollLive() {
+  try {
+    await loadAll();
+    updateUnreadBadge();
+  } catch (err) {
+    console.error('Live poll failed:', err);
+  }
+}
+
+// Count conversations updated since the tab was last focused; badge the tab title when hidden.
+function updateUnreadBadge() {
+  if (document.visibilityState === 'visible') {
+    document.title = baseTitle;
+    return;
+  }
+  const count = (leadsData || []).filter(p => {
+    const ts = new Date(p.updated_at || p.last_interaction).getTime();
+    return !isNaN(ts) && ts > lastFocusTs;
+  }).length;
+  document.title = count > 0 ? `(${count}) ` + baseTitle : baseTitle;
+}
+
+// Pause polling when the tab is hidden; resume when it becomes visible again.
+document.addEventListener('visibilitychange', () => {
+  if (document.visibilityState === 'visible') {
+    lastFocusTs = Date.now();
+    updateUnreadBadge();
+    if (pollingEnabled) startLivePolling();
+  } else {
+    stopLivePolling();
+  }
+});
+
+// ===== API fetch helper =====
+async function apiFetch(endpoint) {
+  const headers = {};
+  if (apiKey) headers['x-api-key'] = apiKey;
+  const res = await fetch(endpoint, { headers });
+  if (res.status === 401) {
+    setConnected(false);
+    throw new Error('Unauthorized');
+  }
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return res.json();
+}
+
+// ===== Time formatting =====
+function formatColombiaTime(dateStr) {
+  if (!dateStr) return '\u2014';
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return '\u2014';
+  const pad = (n) => String(n).padStart(2, '0');
+  return `${pad(d.getDate())}/${pad(d.getMonth() + 1)}/${d.getFullYear()} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// ===== Mask phone =====
+function maskPhone(phone) {
+  if (!phone) return '\u2014';
+  const last4 = phone.slice(-4);
+  return `***${last4}`;
+}
+
+// ===== KPI Cards =====
+function renderKpis(stats) {
+  const total = stats.total_leads || 0;
+  const scheduled = stats.by_status?.CONSULTATION_SCHEDULED || 0;
+  const inTreatment = stats.by_status?.IN_TREATMENT || 0;
+  const convRate = total > 0 ? ((scheduled / total) * 100).toFixed(1) + '%' : '0%';
+
+  $('kpiTotal').textContent = total;
+  $('kpiScheduled').textContent = scheduled;
+  $('kpiTreatment').textContent = inTreatment;
+  $('kpiConversion').textContent = convRate;
+}
+
+// ===== Funnel Chart =====
+function renderFunnel(metrics) {
+  const funnel = metrics.funnel;
+  if (!funnel) return;
+
+  const phases = ['START', 'EXTRACTION', 'HOOK', 'DATA_CAPTURE', 'PAYMENT', 'CLOSING'];
+  const labels = phases.map(p => phaseLabels[currentLocale][p] || p);
+  const counts = phases.map(p => funnel[p]?.count || 0);
+  const total = counts[0] || 1;
+
+  const dropoffs = [];
+  for (let i = 0; i < phases.length; i++) {
+    if (i === 0) {
+      dropoffs.push('');
+    } else {
+      const prev = funnel[phases[i - 1]]?.count || 0;
+      const curr = funnel[phases[i]]?.count || 0;
+      const drop = prev > 0 ? ((prev - curr) / prev * 100).toFixed(1) : 0;
+      dropoffs.push(`-${drop}%`);
+    }
+  }
+
+  const ctx = document.getElementById('funnelChart').getContext('2d');
+
+  if (funnelChartInstance) funnelChartInstance.destroy();
+
+  funnelChartInstance = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels,
+      datasets: [{
+        data: counts,
+        backgroundColor: [
+          'rgba(100, 180, 160, 0.7)',
+          'rgba(100, 180, 255, 0.7)',
+          'rgba(255, 200, 60, 0.7)',
+          'rgba(255, 160, 60, 0.7)',
+          'rgba(80, 210, 120, 0.7)',
+          'rgba(60, 190, 100, 0.7)',
+        ],
+        borderColor: [
+          'rgba(100, 180, 160, 1)',
+          'rgba(100, 180, 255, 1)',
+          'rgba(255, 200, 60, 1)',
+          'rgba(255, 160, 60, 1)',
+          'rgba(80, 210, 120, 1)',
+          'rgba(60, 190, 100, 1)',
+        ],
+        borderWidth: 1,
+        borderRadius: 4,
+        barPercentage: 0.6,
+      }]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: (ctx) => {
+              const i = ctx.dataIndex;
+              const rate = funnel[phases[i]]?.rate || '0%';
+              const dd = dropoffs[i] ? `  (${dropoffs[i]})` : '';
+              return `${counts[i]} leads \u00B7 ${rate}${dd}`;
+            }
+          }
+        }
+      },
+      scales: {
+        x: { beginAtZero: true, ticks: { stepSize: 1, precision: 0 } },
+        y: { grid: { display: false } }
+      }
+    },
+    plugins: [{
+      afterDraw(chart) {
+        const ctx2 = chart.ctx;
+        chart.data.datasets.forEach((ds, di) => {
+          const meta = chart.getDatasetMeta(di);
+          meta.data.forEach((bar, i) => {
+            const rate = funnel[phases[i]]?.rate || '0%';
+            const dd = dropoffs[i];
+            ctx2.fillStyle = '#374151';
+            ctx2.font = '11px sans-serif';
+            ctx2.textAlign = 'left';
+            ctx2.textBaseline = 'middle';
+            const label = dd ? `${counts[i]} (${rate})  ${dd}` : `${counts[i]} (${rate})`;
+            ctx2.fillText(label, bar.x + 6, bar.y);
+          });
+        });
+      }
+    }]
+  });
+}
+
+// ===== Response Time & Reengagement =====
+function renderSideCards(metrics) {
+  const rt = metrics.response_time;
+  $('avgResponseVal').textContent = rt?.avg_first_response_s != null ? rt.avg_first_response_s : '\u2014';
+
+  const tp = metrics.time_to_payment;
+  $('avgPaymentVal').textContent = tp?.avg_minutes != null ? tp.avg_minutes : '\u2014';
+
+  const re = metrics.reengagement;
+  $('reengSentVal').textContent = re?.sent != null ? re.sent : '\u2014';
+  $('reengRecoveredVal').textContent = re?.recovered != null ? re.recovered : '\u2014';
+  $('reengRateVal').textContent = re?.recovery_rate || '\u2014';
+}
+
+// ===== Leads Table =====
+let leadsData = [];
+
+function renderLeads(patients) {
+  leadsData = patients || [];
+  const tbody = document.getElementById('leadsBody');
+
+  if (leadsData.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="7" class="py-8 text-center text-gray-400">${t('noData')}</td></tr>`;
+    return;
+  }
+
+  const pl = phaseLabels[currentLocale];
+
+  tbody.innerHTML = leadsData.map((p, idx) => {
+    const phaseKey = p.phase || '';
+    const phaseLabel = pl[phaseKey] || '\u2014';
+    const phaseColor = PHASE_COLORS[phaseKey] || 'bg-gray-100 text-gray-600';
+    const maskedPhone = maskPhone(p.phone);
+    const lastSeen = formatColombiaTime(p.last_interaction);
+    const hasDetails = p.full_name || p.email || p.consultation_reason;
+    const detailsId = `lead-details-${idx}`;
+
+    return `<tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="toggleDetails('${detailsId}')">
+      <td class="py-2 pr-2 font-mono text-xs">${maskedPhone}</td>
+      <td class="py-2 pr-2">${p.name || '\u2014'}</td>
+      <td class="py-2 pr-2">${p.aesthetic_goal || '\u2014'}</td>
+      <td class="py-2 pr-2"><span class="inline-block px-2 py-0.5 rounded text-xs font-medium ${phaseColor}">${phaseLabel}</span></td>
+      <td class="py-2 pr-2">${p.status || '\u2014'}</td>
+      <td class="py-2 pr-2">${p.source || '\u2014'}</td>
+      <td class="py-2 pr-2 text-xs text-gray-500">${lastSeen}</td>
+    </tr>${hasDetails ? `<tr id="${detailsId}" class="hidden bg-gray-50"><td colspan="7" class="py-2 px-4 text-xs text-gray-500">
+      ${p.full_name ? `<span class="mr-4"><strong>${t('fullName')}</strong> ${p.full_name}</span>` : ''}
+      ${p.email ? `<span class="mr-4"><strong>${t('email')}</strong> ${p.email}</span>` : ''}
+      ${p.consultation_reason ? `<span><strong>${t('reason')}</strong> ${p.consultation_reason}</span>` : ''}
+    </td></tr>` : ''}`;
+  }).join('');
+}
+
+function toggleDetails(id) {
+  const row = document.getElementById(id);
+  if (row) row.classList.toggle('hidden');
+}
+
+// ===== Export CSV =====
+function exportCsv() {
+  if (leadsData.length === 0) return;
+  const pl = phaseLabels[currentLocale];
+  const headers = [t('phone'), t('name'), t('goal'), t('phase'), t('status'), t('source'), t('lastSeen'), t('fullName'), t('email'), t('reason')];
+  const rows = leadsData.map(p => [
+    maskPhone(p.phone),
+    p.name || '',
+    p.aesthetic_goal || '',
+    pl[p.phase] || p.phase || '',
+    p.status || '',
+    p.source || '',
+    formatColombiaTime(p.last_interaction),
+    p.full_name || '',
+    p.email || '',
+    p.consultation_reason || '',
+  ]);
+
+  const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c.replace(/"/g, '""')}"`).join(','))].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const now = new Date();
+  const dateStr = now.toISOString().slice(0, 10);
+  a.download = `valeria-leads-${dateStr}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// ===== Load all data =====
+async function loadAll() {
+  try {
+    const [stats, leads, metrics] = await Promise.all([
+      apiFetch('/debug/stats'),
+      apiFetch('/debug/leads'),
+      apiFetch('/debug/metrics'),
+    ]);
+
+    renderKpis(stats);
+    renderLeads(leads.patients || []);
+    if (metrics.funnel) {
+      renderFunnel(metrics);
+      renderSideCards(metrics);
+    }
+    setConnected(true);
+  } catch (err) {
+    if (err.message === 'Unauthorized') {
+      setConnected(false);
+    }
+  }
+}
+
+// ===== Connect handler =====
+async function connect() {
+  const key = apiKeyInput.value.trim();
+  if (!key) return;
+  try {
+    const res = await fetch('/dashboard/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
+      body: JSON.stringify({ apiKey: key }),
+    });
+    if (!res.ok) throw new Error('Invalid API key');
+    apiKey = key;
+    loadAll();
+  } catch (_) {
+    setConnected(false);
+  }
+}
+
+// ===== Language switcher =====
+document.getElementById('langSwitcher').addEventListener('change', function() {
+  currentLocale = this.value;
+  localStorage.setItem('valeria_locale', currentLocale);
+  applyLocale();
+  setConnected(false);
+  if (apiKey) loadAll();
+});
+
+// ===== Auto-refresh =====
+document.getElementById('autoRefreshToggle').addEventListener('change', function() {
+  if (this.checked) {
+    autoRefreshInterval = setInterval(loadAll, 30000);
+  } else {
+    clearInterval(autoRefreshInterval);
+    autoRefreshInterval = null;
+  }
+});
+
+// ===== Event listeners =====
+connectBtn.addEventListener('click', connect);
+apiKeyInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') connect(); });
+document.getElementById('exportCsvBtn').addEventListener('click', exportCsv);
+
+// ===== Init =====
+(async function init() {
+  applyLocale();
+  try {
+    const [sessionRes, csrfRes] = await Promise.all([
+      fetch('/dashboard/check-session'),
+      fetch('/dashboard/csrf-token'),
+    ]);
+    const sessionData = await sessionRes.json();
+    const csrfData = await csrfRes.json();
+    csrfToken = csrfData.csrfToken || '';
+    if (sessionData.authenticated) {
+      setConnected(true);
+      loadAll();
+    }
+  } catch (_) {
+    // Init failed, user must connect manually
+  }
+})();
+</script>
+</body>
+</html>
