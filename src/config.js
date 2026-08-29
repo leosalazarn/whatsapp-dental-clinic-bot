@@ -4,8 +4,8 @@ import 'dotenv/config';
 // ── Validate required env vars at startup
 const requiredEnvVars = [
     'ANTHROPIC_API_KEY', 'WA_ACCESS_TOKEN', 'WA_PHONE_NUMBER_ID', 'VERIFY_TOKEN', 'META_APP_SECRET',
-    'BANK_HOLDER_NAME', 'BANK_HOLDER_CC',
-    'BANCOLOMBIA_ACCOUNT', 'NEQUI_NUMBER', 'DAVIVIENDA_ACCOUNT',
+    'BANK_HOLDER_NAME', 'BANK_HOLDER_ID',
+    'BANK_ACCOUNT_1', 'MOBILE_WALLET_NUMBER', 'BANK_ACCOUNT_2',
     'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY',
     'CONSULTATION_PRICE', 'BOOK_PRICE', 'MIN_RANGE_PRICE', 'MAX_RANGE_PRICE',
     'DEBUG_API_KEY'
@@ -57,10 +57,10 @@ export const TREATMENT_PRICES = {
 
 // ── Banking Info
 export const BANK_HOLDER_NAME = process.env.BANK_HOLDER_NAME;
-export const BANK_HOLDER_CC = process.env.BANK_HOLDER_CC;
-export const BANCOLOMBIA_ACCOUNT = process.env.BANCOLOMBIA_ACCOUNT;
-export const NEQUI_NUMBER = process.env.NEQUI_NUMBER;
-export const DAVIVIENDA_ACCOUNT = process.env.DAVIVIENDA_ACCOUNT;
+export const BANK_HOLDER_ID = process.env.BANK_HOLDER_ID;
+export const BANK_ACCOUNT_1 = process.env.BANK_ACCOUNT_1;
+export const MOBILE_WALLET_NUMBER = process.env.MOBILE_WALLET_NUMBER;
+export const BANK_ACCOUNT_2 = process.env.BANK_ACCOUNT_2;
 
 // ── Model Router Configuration
 export const MODEL_SIMPLE = 'claude-haiku-4-5-20251001';
@@ -133,14 +133,14 @@ export const MSG_PAYMENT = () =>
 
 Bancolombia — Cta Ahorros
 ${BANK_HOLDER_NAME}
-N° ${BANCOLOMBIA_ACCOUNT} · CC ${BANK_HOLDER_CC}
+N° ${BANK_ACCOUNT_1} · CC ${BANK_HOLDER_ID}
 
 Nequi
-N° ${NEQUI_NUMBER}
+N° ${MOBILE_WALLET_NUMBER}
 
 Davivienda — Cta Ahorros
 ${BANK_HOLDER_NAME}
-N° ${DAVIVIENDA_ACCOUNT} · CC ${BANK_HOLDER_CC}
+N° ${BANK_ACCOUNT_2} · CC ${BANK_HOLDER_ID}
 
 Cuando hagas el abono, envíame el comprobante aquí y confirmamos tu cita 🙌`;
 

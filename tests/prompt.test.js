@@ -82,7 +82,7 @@ describe('buildSystemPrompt — PAYMENT phase', () => {
         expect(prompt).not.toContain('Bancolombia');
         expect(prompt).not.toContain('Nequi');
         expect(prompt).not.toContain('Davivienda');
-        expect(prompt).not.toContain(process.env.BANCOLOMBIA_ACCOUNT);
+        expect(prompt).not.toContain(process.env.BANK_ACCOUNT_1);
     });
 });
 

@@ -1,16 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { containsBankDataLeak, auditOutput, containsHallucinatedPhone } from '../src/guardrails/output.js';
-import { BANCOLOMBIA_ACCOUNT, NEQUI_NUMBER } from '../src/config.js';
+import { BANK_ACCOUNT_1, MOBILE_WALLET_NUMBER } from '../src/config.js';
 
 describe('output guardrail — bank data leak detection', () => {
     it('flags bank data outside PAYMENT phase', () => {
-        expect(containsBankDataLeak(`cuenta ${BANCOLOMBIA_ACCOUNT} ahorros`, 'EXTRACTION')).toBe(true);
-        expect(containsBankDataLeak(`cuenta ${BANCOLOMBIA_ACCOUNT} ahorros`, 'HOOK')).toBe(true);
-        expect(containsBankDataLeak(`cuenta ${BANCOLOMBIA_ACCOUNT} ahorros`, 'CLOSING')).toBe(true);
+        expect(containsBankDataLeak(`cuenta ${BANK_ACCOUNT_1} ahorros`, 'EXTRACTION')).toBe(true);
+        expect(containsBankDataLeak(`cuenta ${BANK_ACCOUNT_1} ahorros`, 'HOOK')).toBe(true);
+        expect(containsBankDataLeak(`cuenta ${BANK_ACCOUNT_1} ahorros`, 'CLOSING')).toBe(true);
     });
 
     it('allows bank data in PAYMENT phase', () => {
-        expect(containsBankDataLeak(`cuenta ${BANCOLOMBIA_ACCOUNT} ahorros`, 'PAYMENT')).toBe(false);
+        expect(containsBankDataLeak(`cuenta ${BANK_ACCOUNT_1} ahorros`, 'PAYMENT')).toBe(false);
     });
 
     it('passes clean responses in any phase', () => {
@@ -25,7 +25,7 @@ describe('output guardrail — bank data leak detection', () => {
     });
 
     it('auditOutput returns safe:false and fallback message for leaks', () => {
-        const result = auditOutput(`Tu cuenta es ${BANCOLOMBIA_ACCOUNT}`, 'HOOK');
+        const result = auditOutput(`Tu cuenta es ${BANK_ACCOUNT_1}`, 'HOOK');
         expect(result.safe).toBe(false);
         expect(result.reason).toBe('bank_data_leak');
         expect(result.text).toContain('equipo');
@@ -40,7 +40,7 @@ describe('output guardrail — hallucinated phone detection', () => {
     });
 
     it('does NOT flag the real Nequi number', () => {
-        expect(containsHallucinatedPhone('Nequi\nN° ' + NEQUI_NUMBER)).toBe(false);
+        expect(containsHallucinatedPhone('Nequi\nN° ' + MOBILE_WALLET_NUMBER)).toBe(false);
     });
 
     it('auditOutput blocks a hallucinated phone with safe:false regardless of phase', () => {
@@ -51,7 +51,7 @@ describe('output guardrail — hallucinated phone detection', () => {
     });
 
     it('auditOutput allows clean text containing the real Nequi number', () => {
-        const result = auditOutput('Nequi ' + NEQUI_NUMBER, 'PAYMENT');
+        const result = auditOutput('Nequi ' + MOBILE_WALLET_NUMBER, 'PAYMENT');
         expect(result.safe).toBe(true);
     });
 });
