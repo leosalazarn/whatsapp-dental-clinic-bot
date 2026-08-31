@@ -9,7 +9,8 @@
 > AI-powered WhatsApp Business assistant for a dental practice.
 > Handles inbound inquiries 24/7 on a dedicated line, qualifies patients, and guides them to book a consultation.
 >
-> **Demo version** — Clinic-specific configuration (bot persona, banking details, receptionist phone) is injected via environment variables and never committed. See `.env.example` for the full variable list.
+> **Demo version** — Clinic-specific configuration (bot persona, banking details, receptionist phone) is injected via
+> environment variables and never committed. See `.env.example` for the full variable list.
 
 **Dedicated line architecture** — every person who messages is treated as a potential patient. No trigger filtering, no
 supplier detection.
@@ -35,23 +36,23 @@ supplier detection.
 
 ## Features
 
-| Feature                      | Description                                                                                                                  |
-|------------------------------|------------------------------------------------------------------------------------------------------------------------------|
-| 24/7 availability            | Responds instantly regardless of office hours                                                                                |
-| Natural conversation         | Warm Colombian Spanish (`tú`), first person plural ("nosotros")                                                              |
-| Multiphase conversion flow   | Guides patient from first contact to deposit                                                                                 |
-| Silent data extraction       | Captures name and goal without interrupting flow                                                                             |
-| Universal re-engagement      | 23h follow-up timer active in every phase (EXTRACTION→CLOSING) — fires 1h before Meta's 24h window closes                   |
-| Approximate price ranges     | Shares treatment ranges when patient insists — never exact prices                                                            |
-| Intent tracking              | Logs objection type, phase, and outcome per patient                                                                          |
-| Supabase persistence         | Leads, conversations, and metrics persisted in Supabase (survives server restarts)                                           |
-| Gestión Odontológica handoff | Appointment data captured by Valeria is handed off to clinic staff for scheduling in the existing practice management system |
+| Feature                      | Description                                                                                                                                     |
+|------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------|
+| 24/7 availability            | Responds instantly regardless of office hours                                                                                                   |
+| Natural conversation         | Warm Colombian Spanish (`tú`), first person plural ("nosotros")                                                                                 |
+| Multiphase conversion flow   | Guides patient from first contact to deposit                                                                                                    |
+| Silent data extraction       | Captures name and goal without interrupting flow                                                                                                |
+| Universal re-engagement      | 23h follow-up timer active in every phase (EXTRACTION→CLOSING) — fires 1h before Meta's 24h window closes                                       |
+| Approximate price ranges     | Shares treatment ranges when patient insists — never exact prices                                                                               |
+| Intent tracking              | Logs objection type, phase, and outcome per patient                                                                                             |
+| Supabase persistence         | Leads, conversations, and metrics persisted in Supabase (survives server restarts)                                                              |
+| Gestión Odontológica handoff | Appointment data captured by Valeria is handed off to clinic staff for scheduling in the existing practice management system                    |
 | Receptionist alert           | Clinic team notified via WhatsApp the moment a lead reaches the payment step (patient name, goal, phone); configurable via `RECEPTIONIST_PHONE` |
-| Retry logic                  | Exponential backoff on Claude API errors (529/503/500)                                                                       |
-| Multi-layer model routing    | Phase override → keyword scan → length heuristic → LLM-as-judge — routes FAQs to Haiku (fast/cheap), depth to Sonnet         |
-| Router telemetry             | Per-session layer/model/token tracking persisted in Supabase; cost estimates in `/metrics`                                   |
-| Input injection defense      | 10 regex patterns detect prompt injection before reaching the LLM                                                            |
-| Output guardrails            | Bank data leak detection — blocks account numbers outside PAYMENT phase                                                      |
+| Retry logic                  | Exponential backoff on Claude API errors (529/503/500)                                                                                          |
+| Multi-layer model routing    | Phase override → keyword scan → length heuristic → LLM-as-judge — routes FAQs to Haiku (fast/cheap), depth to Sonnet                            |
+| Router telemetry             | Per-session layer/model/token tracking persisted in Supabase; cost estimates in `/metrics`                                                      |
+| Input injection defense      | 10 regex patterns detect prompt injection before reaching the LLM                                                                               |
+| Output guardrails            | Bank data leak detection — blocks account numbers outside PAYMENT phase                                                                         |
 
 ---
 

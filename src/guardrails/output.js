@@ -1,4 +1,4 @@
-import { BANK_ACCOUNT_1, MOBILE_WALLET_NUMBER, BANK_ACCOUNT_2, BANK_HOLDER_ID } from '../config.js';
+import {BANK_ACCOUNT_1, MOBILE_WALLET_NUMBER, BANK_ACCOUNT_2, BANK_HOLDER_ID} from '../config.js';
 import log from '../utils/logger.js';
 
 const BANK_DATA_PATTERNS = [
@@ -39,5 +39,5 @@ export function auditOutput(responseText, sessionPhase) {
             text: 'En este momento no puedo procesar esa información. Nuestro equipo te contactará pronto 🙌',
         };
     }
-    return { safe: true, reason: null, text: responseText };
+    return {safe: true, reason: null, text: responseText};
 }
