@@ -1,4 +1,4 @@
-import { BANK_ACCOUNT_1, MOBILE_WALLET_NUMBER, BANK_ACCOUNT_2, BANK_HOLDER_ID } from '../config.js';
+import {BANK_ACCOUNT_1, MOBILE_WALLET_NUMBER, BANK_ACCOUNT_2, BANK_HOLDER_ID} from '../config.js';
 import log from '../utils/logger.js';
 
 const BANK_DATA_PATTERNS = [
@@ -16,7 +16,7 @@ export function containsBankDataLeak(responseText, sessionPhase) {
     return BANK_DATA_PATTERNS.some(pattern => responseText.includes(pattern));
 }
 
-// Detect invented phone-like numbers (e.g. a hallucinated Nequi) that are NOT real known values
+// Detect invented phone-like numbers (e.g. a hallucinated number) that are NOT real known values
 export function containsHallucinatedPhone(responseText) {
     const matches = responseText.match(COL_PHONE_RE) || [];
     return matches.some(m => !BANK_DATA_PATTERNS.includes(m));
@@ -39,5 +39,5 @@ export function auditOutput(responseText, sessionPhase) {
             text: 'En este momento no puedo procesar esa información. Nuestro equipo te contactará pronto 🙌',
         };
     }
-    return { safe: true, reason: null, text: responseText };
+    return {safe: true, reason: null, text: responseText};
 }

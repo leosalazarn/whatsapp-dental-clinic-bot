@@ -111,7 +111,7 @@ valeria-dental-bot/
 | `intent.js`             | Parses `NAME:` / `GOAL:` / `EXTRACTED:` signals from AI responses                                                                      |
 | `flow.js`               | Full pipeline: classify → conversion flow → AI → strip signals → send                                                                  |
 | `routes/webhook.js`     | Meta verification + inbound messages + 5s debounce + 10-msg anti-flood                                                                 |
-| `guardrails/output.js`  | Bank data leak detection — blocks account numbers, Nequi, Davivienda, CC outside PAYMENT phase                                         |
+| `guardrails/output.js`  | Bank data leak detection — blocks the clinic's configured account numbers and holder ID outside PAYMENT phase                          |
 | `validators/index.js`   | Input sanitization + 10-pattern injection detection (ignore/forget, system prompt, DAN, jailbreak)                                     |
 | `public/dashboard.html` | Lead Dashboard UI — single-file HTML, Tailwind CSS, Chart.js, CSP, ES/EN locales, session auth                                         |
 | `routes/debug.js`       | `/leads`, `/stats`, `/metrics` (funnel + router telemetry + cost estimates) — protected by session OR `x-api-key`                      |
