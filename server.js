@@ -44,8 +44,12 @@ app.use(session({
     },
 }));
 
-// ── CSRF protection (lusca.csrf scoped to /dashboard/* — validates POST via x-csrf-token header)
-app.use('/dashboard', lusca.csrf());
+// Mount machine-to-machine routes before CSRF middleware (explicitly CSRF-exempt)
+app.use('/webhook', webhookLimiter, webhookRouter);
+app.use('/debug', debugRouter);
+
+// ── CSRF protection for all remaining session-backed routes
+app.use(lusca.csrf());
 
 // Dashboard — CSRF token endpoint (public with session, no auth needed — token is tied to session)
 app.get('/dashboard/csrf-token', (req, res) => {
@@ -91,10 +95,6 @@ app.get('/dashboard-valeria-statistics', getLimiter, (req, res) => {
     logAccess('/dashboard', req).catch(() => {}); // fire-and-forget audit
     res.sendFile(join(__dirname, 'public', 'dashboard.html'));
 });
-
-// Mount routes
-app.use('/webhook', webhookLimiter, webhookRouter);
-app.use('/debug', debugRouter);
 
 // Start server
 app.listen(PORT, () => {
