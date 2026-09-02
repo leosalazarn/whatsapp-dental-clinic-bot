@@ -92,7 +92,7 @@ The Meta access token should be a **permanent token** generated via:
 | Non-text message rejection     | Only `type === 'text'` messages reach the AI pipeline.                                                                                                                                                 |
 | Anti-Flood Mechanism           | Debounce of 5s, hard cap of 5 messages before immediate processing, and an absolute max of 10 messages per burst to prevent token exhaustion and prompt clutter.                                       |
 | Signal stripping               | `NAME:`, `GOAL:`, `EXTRACTED:` signals removed from AI responses via `stripSignals()` before delivery to patient                                                                                       |
-| Output guardrails              | `guardrails/output.js` — scans AI responses for Bancolombia, Nequi, Davivienda account numbers and CC; blocks leaks outside PAYMENT phase                                                              |
+| Output guardrails              | `guardrails/output.js` — scans AI responses for the clinic's configured bank account numbers and holder ID; blocks leaks outside PAYMENT phase                                                         |
 | SIMPLE/COMPLEX routing         | `model-router.js` classifies messages via Haiku — invalid JSON or API error silently falls back to SIMPLE (Haiku), preventing misrouting                                                               |
 
 ---

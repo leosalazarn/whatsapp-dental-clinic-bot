@@ -1,7 +1,7 @@
 {
   "name": "valeria-dental-bot",
   "version": "1.2.0",
-  "description": "Asesora IA 24/7 para la clínica de la Dra. [Doctor Name] — Perfeccionamiento dental #SmileWithLove en [City] · WhatsApp Business + Claude",
+  "description": "Asesora IA 24/7 para la clínica de la Dra. [Doctor Name] — Perfeccionamiento dental en [City] · WhatsApp Business + Claude",
   "type": "module",
   "main": "server.js",
   "scripts": {

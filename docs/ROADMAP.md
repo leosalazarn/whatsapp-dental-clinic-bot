@@ -129,7 +129,7 @@ Everything below must be green before the first real patient receives a message.
   exported but are now dead code (safe to remove in a future cleanup pass).
 - [x] **Payment determinism:** `MSG_PAYMENT()` added to `src/config.js` — all banking details sourced
   from env vars. `src/flow.js` PAYMENT branch now returns this template directly; the AI never
-  generates payment info. Eliminates Nequi/account hallucination at the root.
+  generates payment info. Eliminates mobile-wallet/account hallucination at the root.
 - [x] **Hallucinated phone guardrail:** `src/guardrails/output.js` now detects invented 10-digit
   Colombian numbers (`3xxxxxxxxx`) not in the known bank-value set and blocks the response in any phase.
 - [x] **Appointment date hallucination (fixed):** `MSG_CLOSING(name)` added to `src/config.js` and
@@ -139,7 +139,7 @@ Everything below must be green before the first real patient receives a message.
 - [x] **Double-message hallucination (fixed):** `src/prompt.js` adds `## TURNO ÚNICO — REGLA ABSOLUTA`
   preventing the AI from simulating a patient reply within the same message turn.
 - [x] **Terminology fix:** All uses of "blanqueamiento" in `src/prompt.js` replaced with
-  "aclaramiento dental" (the clinically precise term used by Dra. Yuri).
+  "aclaramiento dental" (the clinically precise term used by Dra. [Doctor Name]).
 - [x] **Dashboard live polling:** `public/dashboard.html` polls every 8 seconds, updates the
   conversation list in place, shows a `(N)` unread badge in the browser tab, and pauses on tab hide.
 - [x] **Conversation reset endpoint:** `POST /debug/reset/:phone` (auth-protected) resets all
@@ -162,7 +162,7 @@ Everything below must be green before the first real patient receives a message.
    blocker before public launch. All other pre-launch items are complete. Awaiting feedback from
     Dra. [Doctor Name] before opening to real patients.
 - [x] **[P0] In-person payment path:** Some patients do not know how to make electronic
-    transfers (Nequi / Bancolombia / Davivienda). Feedback from Dra. [Doctor Name] confirms
+    transfers (the clinic's configured payment methods). Feedback from Dra. [Doctor Name] confirms
    this is a real drop-off cause. Implemented: on any PAYMENT follow-up the AI is called and may
    emit the `[IN_PERSON_PAYMENT]` signal token; `src/flow.js` intercepts it, sets
    `payment_in_person = true`, and advances to CLOSING with the deterministic
@@ -259,7 +259,7 @@ Everything below must be green before the first real patient receives a message.
   processing only. Informed consent for clinical image use is signed at the valoración, not over WhatsApp.
   **Legal constraint (Colombia):** Any visual assessment of dental condition — even framed as
   "warm and non-diagnostic" — may constitute unlicensed practice of dentistry under Colombian law.
-  Before implementing, validate response copy with Dra. Yuri and legal counsel. Valeria's reply
+  Before implementing, validate response copy with Dra. [Doctor Name] and legal counsel. Valeria's reply
   must be strictly motivational ("Nos encantaría conocer tu caso") and must never describe,
   evaluate, or comment on the patient's dental condition.
 - **Tone Calibration:** Valeria's responses are occasionally over-the-top effusive.

@@ -36,22 +36,22 @@ describe('output guardrail — bank data leak detection', () => {
 
 describe('output guardrail — hallucinated phone detection', () => {
     it('flags an invented 10-digit number starting with 3', () => {
-        expect(containsHallucinatedPhone('Nequi\nN° 3102345678')).toBe(true);
+        expect(containsHallucinatedPhone('\nN° 3102345678')).toBe(true);
     });
 
-    it('does NOT flag the real Nequi number', () => {
-        expect(containsHallucinatedPhone('Nequi\nN° ' + MOBILE_WALLET_NUMBER)).toBe(false);
+    it('does NOT flag the real  number', () => {
+        expect(containsHallucinatedPhone('\nN° ' + MOBILE_WALLET_NUMBER)).toBe(false);
     });
 
     it('auditOutput blocks a hallucinated phone with safe:false regardless of phase', () => {
-        const result = auditOutput('Mi Nequi es 3102345678', 'EXTRACTION');
+        const result = auditOutput('Mi es 3102345678', 'EXTRACTION');
         expect(result.safe).toBe(false);
         expect(result.reason).toBe('hallucinated_phone');
         expect(result.text).toContain('equipo');
     });
 
-    it('auditOutput allows clean text containing the real Nequi number', () => {
-        const result = auditOutput('Nequi ' + MOBILE_WALLET_NUMBER, 'PAYMENT');
+    it('auditOutput allows clean text containing the real number', () => {
+        const result = auditOutput(' ' + MOBILE_WALLET_NUMBER, 'PAYMENT');
         expect(result.safe).toBe(true);
     });
 });

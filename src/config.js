@@ -5,6 +5,7 @@ import 'dotenv/config';
 const requiredEnvVars = [
     'ANTHROPIC_API_KEY', 'WA_ACCESS_TOKEN', 'WA_PHONE_NUMBER_ID', 'VERIFY_TOKEN', 'META_APP_SECRET',
     'BANK_HOLDER_NAME', 'BANK_HOLDER_ID',
+    'BANK_1_NAME', 'WALLET_NAME', 'BANK_2_NAME',
     'BANK_ACCOUNT_1', 'MOBILE_WALLET_NUMBER', 'BANK_ACCOUNT_2',
     'SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY',
     'CONSULTATION_PRICE', 'BOOK_PRICE', 'MIN_RANGE_PRICE', 'MAX_RANGE_PRICE',
@@ -58,6 +59,9 @@ export const TREATMENT_PRICES = {
 // ── Banking Info
 export const BANK_HOLDER_NAME = process.env.BANK_HOLDER_NAME;
 export const BANK_HOLDER_ID = process.env.BANK_HOLDER_ID;
+export const BANK_1_NAME = process.env.BANK_1_NAME;
+export const WALLET_NAME = process.env.WALLET_NAME;
+export const BANK_2_NAME = process.env.BANK_2_NAME;
 export const BANK_ACCOUNT_1 = process.env.BANK_ACCOUNT_1;
 export const MOBILE_WALLET_NUMBER = process.env.MOBILE_WALLET_NUMBER;
 export const BANK_ACCOUNT_2 = process.env.BANK_ACCOUNT_2;
@@ -131,14 +135,14 @@ export const MSG_DATA_CAPTURE = (aestheticGoal) => {
 export const MSG_PAYMENT = () =>
 `🦷☀️ Te dejo los datos para realizar el abono de $${BOOK_PRICE.toLocaleString('es-CO')} y confirmar tu cita de valoración presencial:
 
-Bancolombia — Cta Ahorros
+${BANK_1_NAME} — Cta Ahorros
 ${BANK_HOLDER_NAME}
 N° ${BANK_ACCOUNT_1} · CC ${BANK_HOLDER_ID}
 
-Nequi
+${WALLET_NAME}
 N° ${MOBILE_WALLET_NUMBER}
 
-Davivienda — Cta Ahorros
+${BANK_2_NAME} — Cta Ahorros
 ${BANK_HOLDER_NAME}
 N° ${BANK_ACCOUNT_2} · CC ${BANK_HOLDER_ID}
 
