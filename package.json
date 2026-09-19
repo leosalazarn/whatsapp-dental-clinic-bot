@@ -30,6 +30,6 @@
   "license": "LICENSED",
   "devDependencies": {
     "husky": "^9.1.7",
-    "vitest": "^4.1.11"
+    "vitest": "^5.0.1"
   }
 }
