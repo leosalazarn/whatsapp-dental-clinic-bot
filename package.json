@@ -15,7 +15,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.128.0",
-    "@supabase/supabase-js": "^2.112.3",
+    "@supabase/supabase-js": "^2.117.2",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "express-rate-limit": "^8.7.0",
