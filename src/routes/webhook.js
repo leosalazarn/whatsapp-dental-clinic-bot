@@ -1,12 +1,20 @@
 // Webhook routes — Meta webhook verification and message receiving
 import express from 'express';
 import crypto from 'crypto';
+import rateLimit from 'express-rate-limit';
 import {VERIFY_TOKEN, MSG_NON_TEXT, META_APP_SECRET, DEDUP_TTL_MS, MAX_BUFFER_SIZE, DEBOUNCE_MS} from '../config.js';
 import {processMessage} from '../flow.js';
 import {detectInjectionAttempt} from '../validators/index.js';
 import log from '../utils/logger.js';
 
 const router = express.Router();
+
+const webhookRateLimiter = rateLimit({
+    windowMs: 60 * 1000, // 1 minute
+    max: 120, // limit each IP to 120 requests per minute
+    standardHeaders: true,
+    legacyHeaders: false
+});
 
 // ── Signature verification — Meta sends x-hub-signature-256 = "sha256=" + HMAC-SHA256(rawBody, appSecret).
 //    Fail closed: missing secret, missing header, length mismatch, or mismatch => reject.
@@ -174,6 +182,6 @@ export async function handleInboundWebhook(req, res) {
 
 // POST /webhook is machine-to-machine (Meta Cloud API). CSRF does not apply:
 // authenticity is verified by HMAC-SHA256 on x-hub-signature-256. // lgtm[js/missing-token-validation]
-router.post('/', handleInboundWebhook);
+router.post('/', webhookRateLimiter, handleInboundWebhook);
 
 export default router;
