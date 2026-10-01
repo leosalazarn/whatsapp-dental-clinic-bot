@@ -27,11 +27,12 @@ app.use(express.json({
 // Trust first proxy (Render HTTPS termination)
 app.set('trust proxy', 1);
 
+// Mount machine-to-machine routes first (no browser session / CSRF needed)
+app.use('/webhook', webhookLimiter, webhookRouter);
+app.use('/debug', debugRouter);
+
 // Server-side session — HttpOnly + Secure cookie, no API key stored on client
 const SESSION_SECRET = crypto.randomBytes(32).toString('hex');
-// Session is used only by /dashboard/* — CSRF is applied via app.use('/dashboard', lusca.csrf()).
-// All other POST routes (/webhook, /debug/reset/:phone) are machine-to-machine and suppressed individually.
-// lgtm[js/missing-token-validation]
 app.use(session({
     secret: SESSION_SECRET,
     resave: false,
@@ -44,11 +45,7 @@ app.use(session({
     },
 }));
 
-// Mount machine-to-machine routes before CSRF middleware (explicitly CSRF-exempt)
-app.use('/webhook', webhookLimiter, webhookRouter);
-app.use('/debug', debugRouter);
-
-// ── CSRF protection for all remaining session-backed routes
+// CSRF protection for all session-backed/browser routes
 app.use(lusca.csrf());
 
 // Dashboard — CSRF token endpoint (public with session, no auth needed — token is tied to session)
